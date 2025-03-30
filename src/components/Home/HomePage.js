@@ -1,11 +1,13 @@
 import VideoHome from "../../assets/video-homepage.mp4";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const HomePage = (props) => {
+  const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
+  const navigate = useNavigate();
+
   return (
     <div className="homepage-container">
-      <video autoPlay muted loop>
-        <source src={VideoHome} type="video/mp4" />
-      </video>
       <div className="homepage-content">
         <div className="tittle-1">There's a better way to ask</div>
         <div className="tittle-2">
@@ -13,7 +15,13 @@ const HomePage = (props) => {
           accepted. It maintains professionalism and good business relationships
         </div>
         <div className="tittle-3">
-          <button>Get's started. It's free</button>
+          {isAuthenticated === false ? (
+            <button onClick={() => navigate("/login")}>
+              Get's started. It's free
+            </button>
+          ) : (
+            <button onClick={() => navigate("/users")}>Doing Quiz Now</button>
+          )}
         </div>
       </div>
     </div>

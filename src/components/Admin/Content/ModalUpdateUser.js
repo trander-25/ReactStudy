@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { FcPlus } from "react-icons/fc";
 import { toast } from "react-toastify";
-import { postCreateNewUser } from "../../../services/apiService";
-const ModalCreateUser = (props) => {
-  const { show, setShow } = props;
+import _ from "lodash";
+import { putUpdatUser } from "../../../services/apiService";
+const ModalUpdateUser = (props) => {
+  const { show, setShow, dataUpdate } = props;
 
   const handleClose = () => {
     setShow(false);
@@ -15,6 +16,7 @@ const ModalCreateUser = (props) => {
     setRole("USER");
     setImage("");
     setPreviewImage("");
+    props.resetUpdateData();
   };
 
   const [email, setEmail] = useState("");
@@ -24,6 +26,18 @@ const ModalCreateUser = (props) => {
   const [role, setRole] = useState("USER");
   const [previewImage, setPreviewImage] = useState("");
 
+  useEffect(() => {
+    if (!_.isEmpty(dataUpdate)) {
+      setEmail(dataUpdate.email);
+      setUsername(dataUpdate.username);
+      setRole(dataUpdate.role);
+      setImage("");
+      if (dataUpdate.image) {
+        setPreviewImage(`data:image/jpeg;base64,${dataUpdate.image}`);
+      }
+    }
+  }, [dataUpdate]);
+
   const handleUploadImage = (e) => {
     if (e.target && e.target.files && e.target.files[0]) {
       setPreviewImage(URL.createObjectURL(e.target.files[0]));
@@ -32,32 +46,13 @@ const ModalCreateUser = (props) => {
       // setPreviewImage("");
     }
   };
-  const validateEmail = (email) => {
-    return String(email)
-      .toLowerCase()
-      .match(
-        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-      );
-  };
 
-  const handleSubmitUser = async () => {
-    const isValidEmail = validateEmail(email);
-    if (!isValidEmail) {
-      toast.error("Invalid email");
-      return;
-    }
-
-    if (!password) {
-      toast.error("Invalid password");
-      return;
-    }
-
-    let data = await postCreateNewUser(email, password, username, role, image);
+  const handleSubmitUpdateUser = async () => {
+    let data = await putUpdatUser(dataUpdate.id, username, role, image);
     if (data && data.EC === 0) {
       toast.success(data.EM);
       handleClose();
-      props.setCurrentPage(1);
-      await props.fetchListUsersPaginate(1);
+      await props.fetchListUsersPaginate(props.currentPage);
     }
     if (data && data.EC != 0) {
       toast.error(data.EM);
@@ -77,7 +72,7 @@ const ModalCreateUser = (props) => {
         backdrop="static"
       >
         <Modal.Header closeButton>
-          <Modal.Title>Add new user</Modal.Title>
+          <Modal.Title>Update a user</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <form className="row g-3">
@@ -87,6 +82,7 @@ const ModalCreateUser = (props) => {
                 type="email"
                 className="form-control"
                 value={email}
+                disabled
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
@@ -96,6 +92,7 @@ const ModalCreateUser = (props) => {
                 type="password"
                 className="form-control"
                 value={password}
+                disabled
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
@@ -148,7 +145,7 @@ const ModalCreateUser = (props) => {
           <Button variant="secondary" onClick={handleClose}>
             Close
           </Button>
-          <Button variant="primary" onClick={() => handleSubmitUser()}>
+          <Button variant="primary" onClick={() => handleSubmitUpdateUser()}>
             Save Changes
           </Button>
         </Modal.Footer>
@@ -157,4 +154,4 @@ const ModalCreateUser = (props) => {
   );
 };
 
-export default ModalCreateUser;
+export default ModalUpdateUser;

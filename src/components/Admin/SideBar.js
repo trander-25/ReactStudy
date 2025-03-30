@@ -1,6 +1,7 @@
 import "react-pro-sidebar/dist/css/styles.css";
 import "./SideBar.scss";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   ProSidebar,
   Menu,
@@ -25,6 +26,7 @@ import { DiReact } from "react-icons/di";
 import { MdDashboard } from "react-icons/md";
 
 const SideBar = (props) => {
+  const navigate = useNavigate();
   const { image, collapsed, toggled, handleToggleSidebar } = props;
   return (
     <>
@@ -48,8 +50,12 @@ const SideBar = (props) => {
               whiteSpace: "nowrap",
             }}
           >
-            <DiReact size={"3em"} color="00bfff" />
-            ReactStudy
+            <DiReact
+              size={"3em"}
+              color="00bfff"
+              onClick={() => navigate("/")}
+            />
+            <span onClick={() => navigate("/")}>ReactStudy</span>
           </div>
         </SidebarHeader>
 
@@ -63,11 +69,13 @@ const SideBar = (props) => {
           <Menu iconShape="circle">
             <SubMenu icon={<FaGem />} title="Features">
               <MenuItem>
-                {" "}
                 Quản lý Users
                 <Link to="/admins/manage-users" />
               </MenuItem>
-              <MenuItem> Quản lý Bài Quiz</MenuItem>
+              <MenuItem>
+                Quản lý Bài Quiz
+                <Link to="/admins/manage-quizzes" />
+              </MenuItem>
               <MenuItem> Quản lý Câu Hỏi</MenuItem>
             </SubMenu>
           </Menu>
